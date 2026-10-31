@@ -1,8 +1,37 @@
 # Beehive Deseret Mono
 
-A monospace font for the Deseret Alphabet (Unicode U+10400-1044F), with digits and a set of
-LDS / Deseret symbols. *Deseret* is the Book of Mormon word for honeybee; the beehive is the
-Utah/Deseret emblem.
+![Beehive Deseret Mono demo page](docs/img/screenshot.jpg)
+
+A monospace font for the **Deseret Alphabet** (Unicode U+10400-1044F), with digits styled to match and a
+small set of Deseret and LDS emblems. *Deseret* is the Book of Mormon word for honeybee, and the beehive
+is the emblem of Utah.
+
+**[Try it in the browser](https://hotschmoe.github.io/beehive-deseret/)**: type English and see it in
+Deseret, browse the alphabet as a honeycomb, flip the ligatures on and off.
+
+## Download
+
+- [`fonts/BeehiveDeseretMono-Regular.ttf`](fonts/BeehiveDeseretMono-Regular.ttf)
+- [`fonts/BeehiveDeseretMono-Regular.woff2`](fonts/BeehiveDeseretMono-Regular.woff2) for the web
+
+```css
+@font-face {
+  font-family: "Beehive Deseret Mono";
+  src: url("BeehiveDeseretMono-Regular.woff2") format("woff2");
+}
+.deseret { font-family: "Beehive Deseret Mono", monospace; }
+```
+
+## What is in it
+
+| | |
+|---|---|
+| Letters | all 40 (U+10400-10427), and the lowercase block (U+10428-1044F) shares the same shapes |
+| Digits | `0-9`, drawn in the Deseret style |
+| Punctuation | `. , : ; - ' " ! ? ( ) /` |
+| Emblems | seven glyphs in the Private Use Area (below) |
+| Ligatures | Ew and Oi through `calt`, keeping the monospace grid |
+| Metrics | 1000 units per em, every glyph advances 620, every letter spans exactly 0-620 in height |
 
 ## Fidelity to the originals
 
@@ -41,8 +70,10 @@ Spacing: letters in the 1869 text are about 0.75-0.95 of their height wide with 
 0.15-0.2 of the height; the 620-unit cell (1.0 x height) holds the widest letter (526) with at least
 47 units clear on each side. Automatic measurement on running text is noisy because letters touch.
 
-Not yet reproduced: letterpress edge irregularity, and a few letters (Ow, Long A, Yee, Thee, Es)
-remain simplified.
+Each letter is also matched to the width-to-height proportion printed in the 1869 chart, and the build
+solves the skeleton width to hit it (see "Checking against the chart" below). Mean overlap with the
+printed letters is about 0.65; Yee, Es, Long A, Bee and Dee are the least faithful. Letterpress edge
+irregularity is not reproduced.
 
 ## Ligatures
 
@@ -88,15 +119,26 @@ Pipeline: skeleton polylines -> stroked polygons (flat ends, mitred joins) -> ov
 
 ## Status
 
-v0.5. No hinting or kerning (monospace, so kerning is moot). Licence undecided.
+v0.5. No hinting; kerning is moot in a monospace font. Contributions and letter-by-letter corrections
+are welcome.
+
+## Licence
+
+- The font files (`fonts/`, `docs/fonts/`) are under the [SIL Open Font License 1.1](OFL.txt). Use them
+  freely, embed them, modify them; just do not sell the font by itself.
+- The source code (build scripts, `docs/index.html`) is under the [MIT licence](LICENSE).
+- The comparison sheet `docs/img/chart-vs-beehive.jpg` includes small crops of a public-domain 1869 printing.
 
 ## Demo site
 
-`site/index.html` is a static page that uses the built font: live English-to-Deseret typing (approximate, dictionary plus spelling rules), a clickable honeycomb alphabet, the ligature switch, digits, emblems and the 1869 comparison sheet. Serve it on the LAN with
+`docs/index.html` is a static page, published with GitHub Pages at
+<https://hotschmoe.github.io/beehive-deseret/>. It has live English-to-Deseret typing (approximate:
+a dictionary plus spelling rules), a clickable honeycomb alphabet, the ligature switch, digits with a
+live clock, the emblems and the 1869 comparison sheet. Run it locally with
 
     ./serve.sh 8420
 
-After rebuilding the font, copy `fonts/BeehiveDeseretMono-Regular.{ttf,woff2}` into `site/fonts/`.
+`build.py` copies the built font into `docs/fonts/`.
 
 ## Checking against the chart
 

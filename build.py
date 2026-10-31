@@ -242,7 +242,9 @@ def main():
         "fullName": "Beehive Deseret Mono Regular",
         "psName": "BeehiveDeseretMono-Regular",
         "version": "Version 0.5",
-        "licenseDescription": "Original design; licence to be decided by the author.",
+        "copyright": "Copyright 2026 hotschmoe. Original design.",
+        "licenseDescription": "This Font Software is licensed under the SIL Open Font License, Version 1.1.",
+        "licenseInfoURL": "https://openfontlicense.org",
     })
     fb.setupOS2(sTypoAscender=800, sTypoDescender=-240, sTypoLineGap=0,
                 usWinAscent=860, usWinDescent=260, sxHeight=620, sCapHeight=620,
@@ -258,6 +260,10 @@ def main():
     fb.font.save(out / "BeehiveDeseretMono-Regular.ttf")
     fb.font.flavor = "woff2"
     fb.font.save(out / "BeehiveDeseretMono-Regular.woff2")
+    site = ROOT / "docs" / "fonts"
+    site.mkdir(parents=True, exist_ok=True)
+    for ext in ("ttf", "woff2"):
+        (site / f"BeehiveDeseretMono-Regular.{ext}").write_bytes((out / f"BeehiveDeseretMono-Regular.{ext}").read_bytes())
     print(f"built {len(order)} glyphs -> {out}")
 
 
