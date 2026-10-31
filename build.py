@@ -64,7 +64,7 @@ def thicken(path, w, contrast=1.0, bar=None):
         d = math.hypot(x1 - x0, y1 - y0)
         dx, dy = (x1 - x0) / d, (y1 - y0) / d
         c = bar if (bar is not None and d > 70) else contrast
-        r = w / 2 * (c + (1 - c) * abs(dy))
+        r = w / 2 * (c + (1 - c) * abs(dy)) * getattr(path, "fine", 1.0)
         dirs.append((dx, dy))
         radii.append(r)
         nx, ny = -dy * r, dx * r
@@ -162,6 +162,25 @@ def notdef():
     return pen.glyph()
 
 
+def letter_scale(nm):
+    """Horizontal skeleton scale that gives the printed 1869 width/height (stroke weight is kept)."""
+    if nm not in sk.ASPECT:
+        return sk.HSCALE
+
+    def aspect(s):
+        x0, y0, x1, y1 = bbox(outline(sk.scaled(sk.LETTERS[nm], s), sk.STROKE, sk.CONTRAST, sk.BAR))
+        return (x1 - x0) / (y1 - y0)
+
+    s0, s1 = 0.7, 1.3
+    a0, a1 = aspect(s0), aspect(s1)
+    for _ in range(4):
+        if abs(a1 - sk.ASPECT[nm]) < 0.002 or a1 == a0:
+            break
+        s = s0 + (sk.ASPECT[nm] - a0) * (s1 - s0) / (a1 - a0)
+        s0, a0, s1, a1 = s1, a1, s, aspect(s)
+    return s1
+
+
 def main():
     glyphs = {".notdef": notdef(), "space": TTGlyphPen(None).glyph()}
     order = [".notdef", "space"]
@@ -182,7 +201,7 @@ def main():
             print(f"warning: {name} is {x1 - x0:.0f} wide", file=sys.stderr)
 
     for i, nm in enumerate(sk.DESERET_ORDER):
-        add(nm, sk.scaled(sk.LETTERS[nm], sk.HSCALE), sk.STROKE, sk.CONTRAST, sk.BAR, True)
+        add(nm, sk.scaled(sk.LETTERS[nm], letter_scale(nm)), sk.STROKE, sk.CONTRAST, sk.BAR, True)
         cmap[0x10400 + i] = nm       # capital
         cmap[0x10428 + i] = nm       # lowercase shares the historical form
     for i, nm in enumerate(sk.DIGITS):
@@ -222,7 +241,7 @@ def main():
         "uniqueFontIdentifier": "BeehiveDeseretMono-Regular",
         "fullName": "Beehive Deseret Mono Regular",
         "psName": "BeehiveDeseretMono-Regular",
-        "version": "Version 0.4",
+        "version": "Version 0.5",
         "licenseDescription": "Original design; licence to be decided by the author.",
     })
     fb.setupOS2(sTypoAscender=800, sTypoDescender=-240, sTypoLineGap=0,
@@ -232,7 +251,7 @@ def main():
     fb.addOpenTypeFeatures(LIGATURES)
     panose = fb.font["OS/2"].panose
     panose.bFamilyType, panose.bProportion = 2, 9
-    fb.font["head"].fontRevision = 0.4
+    fb.font["head"].fontRevision = 0.5
 
     out = ROOT / "fonts"
     out.mkdir(exist_ok=True)

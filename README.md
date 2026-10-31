@@ -88,4 +88,16 @@ Pipeline: skeleton polylines -> stroked polygons (flat ends, mitred joins) -> ov
 
 ## Status
 
-v0.4. No hinting or kerning (monospace, so kerning is moot). Licence undecided.
+v0.5. No hinting or kerning (monospace, so kerning is moot). Licence undecided.
+
+## Demo site
+
+`site/index.html` is a static page that uses the built font: live English-to-Deseret typing (approximate, dictionary plus spelling rules), a clickable honeycomb alphabet, the ligature switch, digits, emblems and the 1869 comparison sheet. Serve it on the LAN with
+
+    ./serve.sh 8420
+
+After rebuilding the font, copy `fonts/BeehiveDeseretMono-Regular.{ttf,woff2}` into `site/fonts/`.
+
+## Checking against the chart
+
+`period_overlay.py bom.pdf OUTDIR` writes large sheets with each 1869 letter, Beehive, and an overlay (chart red, Beehive blue), and prints per-letter aspect ratio, overlap (IoU) and ink ratio. The printed width/height of each letter is in `skeletons.ASPECT`; `build.py` solves the horizontal skeleton scale so every letter hits that proportion while keeping stroke weight.

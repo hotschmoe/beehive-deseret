@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beehive Deseret Mono</title>
+<meta name="description" content="A monospace font for the Deseret Alphabet, with digits and Deseret emblems.">
+<style>
+@font-face {
+  font-family: "Beehive";
+  src: url("fonts/BeehiveDeseretMono-Regular.woff2") format("woff2"),
+       url("fonts/BeehiveDeseretMono-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+:root {
+  --paper: #f4e6c3;
+  --paper-2: #ead7a8;
+  --ink: #2a1a0c;
+  --ink-soft: #6b4d2c;
+  --honey: #e2a41f;
+  --honey-deep: #b87408;
+  --comb: #fbf1d5;
+  --comb-edge: #d9a93a;
+  --card: rgba(255, 249, 232, .72);
+  --shadow: rgba(80, 45, 5, .22);
+  --hexbg: #c9962a;
+}
+:root[data-theme="night"] {
+  --paper: #1c120a;
+  --paper-2: #2a1a0e;
+  --ink: #f6e3b5;
+  --ink-soft: #c4a266;
+  --honey: #f2b631;
+  --honey-deep: #ffd36b;
+  --comb: #3a2512;
+  --comb-edge: #b88416;
+  --card: rgba(58, 37, 18, .72);
+  --shadow: rgba(0, 0, 0, .5);
+  --hexbg: #f2b631;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, color-mix(in srgb, var(--honey) 28%, transparent), transparent 70%),
+    radial-gradient(900px 500px at -10% 30%, color-mix(in srgb, var(--honey-deep) 16%, transparent), transparent 70%),
+    var(--paper);
+  font: 17px/1.55 "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1; opacity: .09; pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'><path d='M28 2 54 17v30L28 62 2 47V17zM0 64l28 16v30M56 64 28 80' fill='none' stroke='%23c9962a' stroke-width='2'/></svg>");
+  background-size: 56px 97px;
+}
+.deseret { font-family: "Beehive", monospace; font-feature-settings: "calt" 1; }
+a { color: inherit; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+section { padding: 56px 0 24px; }
+h2 {
+  font-size: clamp(26px, 4vw, 38px); margin: 0 0 6px; letter-spacing: .01em; line-height: 1.15;
+}
+h2 .deseret { color: var(--honey-deep); margin-right: .35em; font-size: .9em; }
+.lede { color: var(--ink-soft); max-width: 62ch; margin: 0 0 24px; }
+
+nav {
+  position: sticky; top: 0; z-index: 20; backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--paper) 78%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--comb-edge) 45%, transparent);
+}
+nav .wrap { display: flex; align-items: center; gap: 18px; height: 54px; }
+nav .brand { font-weight: 700; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+nav .brand .deseret { font-size: 26px; color: var(--honey-deep); }
+nav .links { margin-left: auto; display: flex; gap: 16px; font-size: 15px; }
+nav .links a { text-decoration: none; color: var(--ink-soft); }
+nav .links a:hover { color: var(--ink); }
+button, .btn {
+  font: inherit; cursor: pointer; border: 1.5px solid var(--honey-deep); color: var(--ink);
+  background: color-mix(in srgb, var(--honey) 22%, var(--paper)); border-radius: 999px; padding: 6px 16px;
+  text-decoration: none; display: inline-block; transition: transform .12s, box-shadow .12s, background .12s;
+}
+button:hover, .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px var(--shadow); }
+.btn.primary { background: linear-gradient(180deg, var(--honey), var(--honey-deep)); color: #2a1a0c; border-color: transparent; font-weight: 700; }
+button.on { background: var(--honey); color: #2a1a0c; }
+
+.hero { position: relative; padding: 70px 0 30px; text-align: center; }
+.hero .big {
+  font-size: clamp(64px, 15vw, 190px); line-height: 1; color: var(--ink);
+  text-shadow: 0 .04em 0 color-mix(in srgb, var(--honey) 60%, transparent), 0 .12em .3em var(--shadow);
+  white-space: nowrap;
+}
+.hero .big span { display: inline-block; animation: rise .7s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes rise { from { transform: translateY(.5em) scale(.6) rotate(-8deg); opacity: 0; } }
+.hero h1 { margin: 6px 0 4px; font-size: clamp(22px, 3.4vw, 34px); letter-spacing: .04em; font-weight: 600; }
+.hero p { margin: 0 auto 22px; max-width: 58ch; color: var(--ink-soft); }
+.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.bee {
+  position: absolute; font-family: "Beehive"; font-size: 44px; color: var(--honey-deep);
+  animation: fly 14s linear infinite; pointer-events: none; opacity: .9;
+}
+.bee:nth-of-type(2) { animation-duration: 19s; animation-delay: -6s; font-size: 30px; top: 55% !important; }
+.bee:nth-of-type(3) { animation-duration: 23s; animation-delay: -12s; font-size: 36px; top: 20% !important; }
+@keyframes fly {
+  0% { left: -8%; transform: translateY(0) rotate(4deg); }
+  25% { transform: translateY(-34px) rotate(-6deg); }
+  50% { transform: translateY(10px) rotate(5deg); }
+  75% { transform: translateY(-26px) rotate(-4deg); }
+  100% { left: 104%; transform: translateY(0) rotate(4deg); }
+}
+.hive-line { margin-top: 38px; display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; font-size: 15px; color: var(--ink-soft); }
+.hive-line b { display: block; font-size: 30px; color: var(--ink); font-weight: 700; line-height: 1.1; }
+
+.card {
+  background: var(--card); border: 1.5px solid color-mix(in srgb, var(--comb-edge) 70%, transparent);
+  border-radius: 20px; padding: 20px; box-shadow: 0 14px 34px var(--shadow);
+}
+.tool { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; font-size: 15px; }
+.tool label { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-soft); }
+.tool input[type=range] { accent-color: var(--honey-deep); }
+textarea {
+  width: 100%; min-height: 84px; resize: vertical; font: inherit; color: var(--ink); background: color-mix(in srgb, var(--paper) 70%, #fff 0%);
+  border: 1.5px solid var(--comb-edge); border-radius: 12px; padding: 10px 12px;
+}
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 14px; }
+.chips button { font-size: 14px; padding: 3px 12px; }
+.out {
+  margin-top: 14px; padding: 18px; border-radius: 14px; min-height: 140px; overflow-x: auto;
+  background: repeating-linear-gradient(0deg, transparent 0 calc(1.5em - 1px), color-mix(in srgb, var(--comb-edge) 30%, transparent) calc(1.5em - 1px) 1.5em), var(--comb);
+  font-family: "Beehive", monospace; line-height: 1.5; white-space: pre-wrap; word-break: break-word;
+}
+.out.grid {
+  background-image:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--honey-deep) 45%, transparent) 0 1px, transparent 1px .62em),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--honey-deep) 45%, transparent) 0 1px, transparent 1px 1.5em);
+  background-position: 18px 18px;
+}
+.note { font-size: 14px; color: var(--ink-soft); margin: 8px 0 0; }
+
+.alpha { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 22px; align-items: start; }
+.comb { position: relative; }
+.cell {
+  position: absolute; display: flex; align-items: center; justify-content: center; flex-direction: column;
+  cursor: pointer; border: 0; padding: 0; border-radius: 0; color: var(--ink);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  background: linear-gradient(160deg, var(--comb), color-mix(in srgb, var(--honey) 35%, var(--comb)));
+  transition: transform .15s, background .15s; font-size: 0;
+}
+.cell::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+}
+.cell .g { font-family: "Beehive"; line-height: 1; }
+.cell .n { font: 600 10px/1 system-ui, sans-serif; letter-spacing: .04em; color: var(--ink-soft); margin-top: 3px; text-transform: uppercase; }
+.cell:hover, .cell.sel { transform: scale(1.1); z-index: 3; background: linear-gradient(160deg, var(--honey), var(--honey-deep)); color: #2a1a0c; }
+.cell:hover .n, .cell.sel .n { color: #2a1a0c; }
+.cellwrap { position: absolute; filter: drop-shadow(0 2px 0 var(--comb-edge)); }
+.detail { position: sticky; top: 74px; text-align: center; }
+.detail .huge { font-family: "Beehive"; font-size: 150px; line-height: 1.1; color: var(--ink); }
+.detail h3 { margin: 0; font-size: 22px; }
+.detail dl { margin: 12px 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; text-align: left; font-size: 15px; }
+.detail dt { color: var(--ink-soft); }
+.detail dd { margin: 0; }
+
+.lig { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.lig .pair { display: flex; align-items: center; gap: 14px; justify-content: center; font-family: "Beehive"; font-size: 64px; }
+.lig .arrow { font: 30px system-ui; color: var(--honey-deep); }
+.lig .box { background: var(--comb); border-radius: 14px; padding: 8px 14px; border: 1.5px dashed var(--comb-edge); }
+.lig small { display: block; text-align: center; color: var(--ink-soft); font-size: 14px; margin-top: 8px; }
+
+.nums .row { font-family: "Beehive"; font-size: clamp(36px, 7vw, 76px); letter-spacing: 0; white-space: pre; overflow-x: auto; }
+.nums .clock { font-size: clamp(54px, 11vw, 120px); color: var(--honey-deep); }
+.emblems { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.emblem { text-align: center; cursor: pointer; padding: 14px 8px 10px; transition: transform .2s; }
+.emblem:hover { transform: translateY(-5px) rotate(-2deg); }
+.emblem .g { font-family: "Beehive"; font-size: 84px; line-height: 1.1; color: var(--ink); }
+.emblem b { display: block; }
+.emblem small { color: var(--ink-soft); font: 13px ui-monospace, monospace; }
+.proof img { width: 100%; height: auto; border-radius: 12px; display: block; background: #fff; }
+.proof ul { margin: 12px 0 0; padding-left: 20px; color: var(--ink-soft); }
+footer { margin: 60px 0 40px; text-align: center; color: var(--ink-soft); font-size: 14px; }
+footer .deseret { font-size: 28px; color: var(--honey-deep); display: block; }
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 90px); background: var(--ink); color: var(--paper);
+  padding: 8px 18px; border-radius: 999px; transition: transform .25s; z-index: 50; font-size: 15px;
+}
+.toast.show { transform: translate(-50%, 0); }
+@media (max-width: 820px) {
+  .alpha { grid-template-columns: 1fr; }
+  .detail { position: static; }
+  nav .links a:nth-child(n+4) { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .bee { animation: none; } .hero .big span { animation: none; } }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#top"><span class="deseret">&#xE000;</span> Beehive Deseret Mono</a>
+    <div class="links">
+      <a href="#try">Type</a><a href="#alphabet">Alphabet</a><a href="#ligatures">Ligatures</a>
+      <a href="#numbers">Numbers</a><a href="#emblems">Emblems</a><a href="#period">Period check</a>
+    </div>
+    <button id="theme" title="Toggle night mode" aria-label="Toggle night mode">&#9790;</button>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <span class="bee" style="top:12%">&#xE001;</span><span class="bee">&#xE001;</span><span class="bee">&#xE001;</span>
+  <div class="wrap">
+    <div class="big deseret" id="bigword" aria-label="Deseret"></div>
+    <h1>BEEHIVE DESERET MONO</h1>
+    <p>A monospace face for the alphabet Brigham Young's Regents of the University of Deseret commissioned in 1854, with
+       digits that wear the same type, and a small hive of Deseret emblems.</p>
+    <div class="cta">
+      <a class="btn primary" href="#try">Try typing</a>
+      <a class="btn" href="fonts/BeehiveDeseretMono-Regular.woff2" download>WOFF2</a>
+      <a class="btn" href="fonts/BeehiveDeseretMono-Regular.ttf" download>TTF</a>
+    </div>
+    <div class="hive-line">
+      <div><b>40</b>letters</div><div><b>10</b>digits</div><div><b>7</b>emblems</div><div><b>620</b>units per cell</div>
+      <div><b id="days">&ndash;</b>days since approval (19 Jan 1854)</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<section id="try">
+  <h2><span class="deseret">&#x1042C;</span>Type in Deseret</h2>
+  <p class="lede">Write English below and see it spelled the Deseret way. Deseret is phonetic and English spelling is not, so the
+     converter is approximate: a dictionary of common words plus spelling rules. Switch to <em>Raw</em> to type or paste
+     Deseret characters yourself.</p>
+  <div class="card">
+    <div class="tool">
+      <button id="mEng" class="on">English &rarr; Deseret</button><button id="mRaw">Raw</button>
+      <label>Size <input id="size" type="range" min="28" max="140" value="64"></label>
+      <label><input id="gridT" type="checkbox"> Show 620-unit cells</label>
+      <label><input id="ligT" type="checkbox" checked> Ligatures</label>
+      <button id="copyOut" style="margin-left:auto">Copy Deseret</button>
+    </div>
+    <textarea id="src" spellcheck="false">Holiness to the Lord. Industry! The busy bee makes sweet honey in the hive.</textarea>
+    <div class="chips" id="chips"></div>
+    <div class="out deseret" id="out" aria-live="polite"></div>
+    <p class="note" id="outNote"></p>
+  </div>
+</section>
+
+<section id="alphabet">
+  <h2><span class="deseret">&#x10400;</span>The honeycomb alphabet</h2>
+  <p class="lede">All 40 letters, in the order of the 1859 alphabet: six long vowels, six short vowels, the diphthongs and
+     semivowels, then the consonants and the two <em>Deseret News</em> ligatures. Click a cell to inspect it, or copy it.</p>
+  <div class="alpha">
+    <div class="comb" id="comb"></div>
+    <aside class="card detail" id="detail"></aside>
+  </div>
+</section>
+
+<section id="ligatures">
+  <h2><span class="deseret">&#x10427;</span>Two letters, one cell</h2>
+  <p class="lede">In 1859 the <em>Deseret News</em> added <b>Ew</b> and <b>Oi</b> as ligatures. This is a monospace font, so the
+     ligature keeps the grid: the first cell turns blank and the new letter spans both. Toggle the OpenType <code>calt</code> feature to watch it happen.</p>
+  <div class="card">
+    <div class="tool"><button id="ligPage" class="on">calt on</button><span class="note" style="margin:0">Each box is plain text in the font; only the feature changes.</span></div>
+    <div class="lig" id="ligDemo"></div>
+  </div>
+</section>
+
+<section id="numbers">
+  <h2><span class="deseret">&#x10412;</span>Numbers, in letter-type</h2>
+  <p class="lede">The 1850s alphabet had no digits of its own, so these are stylized to match: same height as the letters, same hairline and heavy strokes, and the same ball terminals.</p>
+  <div class="card nums">
+    <div class="row">0123456789</div>
+    <div class="row" style="font-size:clamp(28px,5vw,52px)">. , : ; - ' " ! ? ( ) /</div>
+    <div class="row clock" id="clock">00:00:00</div>
+    <p class="note">That clock is live, set in the font.</p>
+  </div>
+</section>
+
+<section id="emblems">
+  <h2><span class="deseret">&#xE000;</span>Emblems of Deseret</h2>
+  <p class="lede">Private Use Area glyphs for the symbols of the Deseret era. Click one to copy its character, or type it with its code point.</p>
+  <div class="emblems" id="emb"></div>
+</section>
+
+<section id="period" class="proof">
+  <h2><span class="deseret">&#x1041B;</span>Checked against the 1869 chart</h2>
+  <p class="lede">Left of each pair: the letter as printed in the 1869 <em>Book of Mormon</em> in the Deseret Alphabet (public domain, scanned at the Internet Archive).
+     Right: Beehive. Widths are matched to the printed proportions, and ball terminals are placed where the type has them.</p>
+  <div class="card"><img src="img/chart-vs-beehive.jpg" alt="Letters from the 1869 chart beside the same letters in Beehive Deseret Mono" loading="lazy">
+    <ul>
+      <li>Mean overlap with the printed letters is about 0.65 (intersection over union, same height, centred). Several letters sit above 0.75 and a handful of the swashiest ones (Yee, Es, Long A) are still simplified.</li>
+      <li>Not reproduced: letterpress edge irregularity, and the original bold, high-contrast Didone-style modulation. Everything is drawn from scratch; no existing font was copied.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <span class="deseret" id="foot"></span>
+  Beehive Deseret Mono v0.5 &middot; Deseret Alphabet, U+10400&ndash;1044F &middot; made on a long evening
+</footer>
+<div class="toast" id="toast"></div>
+
+<script>
+const NAMES = ["Long I","Long E","Long A","Long AH","Long O","Long OO","Short I","Short E","Short A","Short AH","Short O","Short OO",
+  "Ay","Ow","Wu","Yee","H","Pee","Bee","Tee","Dee","Chee","Jee","Kay","Gay","Ef","Vee","Eth","Thee","Es","Zee","Esh","Zhee",
+  "Er","El","Em","En","Eng","Oi","Ew"];
+const CODES = "ee ay ah aw oh oo ih eh a o uh u eye ow w y h p b t d ch j k g f v th dh s z sh zh r l m n ng oy ew".split(" ");
+const EXAMPLE = ["eat","ate","art","all","oak","ooze","it","end","at","on","up","foot","ice","out","we","yes","he","pie","bee","tea","day",
+  "chair","joy","key","go","fee","view","thigh","thy","sea","zoo","she","vision","row","low","me","no","sing","oil","few"];
+const SOUND = ["/i:/","/e&#618;/","/&#593;:/","/&#596;:/","/o&#650;/","/u:/","/&#618;/","/&#603;/","/&#230;/","/&#594;/","/&#652;/","/&#650;/",
+  "/a&#618;/","/a&#650;/","/w/","/j/","/h/","/p/","/b/","/t/","/d/","/t&#643;/","/d&#658;/","/k/","/g/","/f/","/v/","/&#952;/","/&#240;/","/s/","/z/","/&#643;/","/&#658;/",
+  "/r/","/l/","/m/","/n/","/&#331;/","/&#596;&#618;/","/ju:/"];
+const IDX = Object.fromEntries(CODES.map((c, i) => [c, i]));
+const ch = i => String.fromCodePoint(0x10428 + i);
+const hex = n => "U+" + n.toString(16).toUpperCase().padStart(4, "0");
+
+const DICT = {};
+`the:dh uh|a:uh|of:uh v|and:a n d|to:t oo|in:ih n|is:ih z|you:y oo|that:dh a t|it:ih t|he:h ee|was:w uh z|for:f aw r|on:o n|are:ah r|with:w ih dh|as:a z|i:eye|his:h ih z|they:dh ay|be:b ee|at:a t|one:w uh n|have:h a v|this:dh ih s|from:f r o m|or:aw r|had:h a d|by:b eye|not:n o t|but:b uh t|what:w o t|all:aw l|were:w uh r|we:w ee|when:w eh n|your:y aw r|can:k a n|said:s eh d|there:dh eh r|use:y ew z|an:a n|each:ee ch|which:w ih ch|she:sh ee|do:d oo|how:h ow|their:dh eh r|if:ih f|will:w ih l|up:uh p|other:uh dh uh r|about:uh b ow t|out:ow t|many:m eh n ee|then:dh eh n|them:dh eh m|these:dh ee z|so:s oh|some:s uh m|her:h uh r|would:w u d|make:m ay k|like:l eye k|him:h ih m|into:ih n t oo|time:t eye m|has:h a z|look:l u k|two:t oo|more:m aw r|write:r eye t|go:g oh|see:s ee|no:n oh|way:w ay|could:k u d|people:p ee p uh l|my:m eye|than:dh a n|first:f uh r s t|water:w aw t uh r|been:b ih n|call:k aw l|who:h oo|its:ih t s|now:n ow|find:f eye n d|long:l aw ng|down:d ow n|day:d ay|did:d ih d|get:g eh t|come:k uh m|made:m ay d|may:m ay|part:p ah r t|deseret:d eh z uh r eh t|beehive:b ee h eye v|bee:b ee|bees:b ee z|honey:h uh n ee|utah:y ew t aw|brigham:b r ih g uh m|young:y uh ng|zion:z eye uh n|lord:l aw r d|god:g o d|holiness:h oh l ee n eh s|industry:ih n d uh s t r ee|book:b u k|mormon:m aw r m uh n|salt:s aw l t|lake:l ay k|city:s ih t ee|alphabet:a l f uh b eh t|welcome:w eh l k uh m|hello:h eh l oh|font:f o n t|monospace:m o n oh s p ay s|sweet:s w ee t|busy:b ih z ee|hive:h eye v|hum:h uh m|love:l uh v|good:g u d|world:w uh r l d|word:w uh r d|words:w uh r d z|letters:l eh t uh r z|letter:l eh t uh r|type:t eye p|here:h ee r|try:t r eye|makes:m ay k s|quick:k w ih k|brown:b r ow n|fox:f o k s|jumps:j uh m p s|over:oh v uh r|lazy:l ay z ee|dog:d aw g|nephi:n ee f eye|zion:z eye uh n|christ:k r eye s t|jesus:j ee z uh s|church:ch uh r ch|saints:s ay n t s|latter:l a t uh r|day:d ay|true:t r oo|truth:t r oo th|light:l eye t|life:l eye f|age:ay j|ages:ay j uh z|years:y ee r z|year:y ee r|please:p l ee z|thank:th a ng k|thanks:th a ng k s|beautiful:b ew t uh f u l|night:n eye t|morning:m aw r n ih ng|evening:ee v n ih ng|written:r ih t uh n|pioneer:p eye uh n ee r|pioneers:p eye uh n ee r z|valley:v a l ee|wagon:w a g uh n|seagull:s ee g uh l`
+  .split("|").forEach(e => { const [w, p] = e.split(":"); DICT[w] = p.split(" "); });
+
+const LONG = { a: "ay", e: "ee", i: "eye", o: "oh", u: "ew" };
+const SHORT = { a: "a", e: "eh", i: "ih", o: "o", u: "uh", y: "ih" };
+const RULES = [
+  [/^tion/, "sh uh n"], [/^sion/, "zh uh n"], [/^ture/, "ch uh r"], [/^eigh/, "ay"], [/^ight/, "eye t"], [/^igh/, "eye"],
+  [/^ough/, "aw"], [/^ck/, "k"], [/^ch/, "ch"], [/^sh/, "sh"], [/^th/, "th"], [/^ph/, "f"], [/^ng/, "ng"], [/^nk/, "ng k"],
+  [/^qu/, "k w"], [/^ee/, "ee"], [/^ea/, "ee"], [/^oo/, "oo"], [/^ou/, "ow"], [/^oi|^oy/, "oy"], [/^ai|^ay/, "ay"],
+  [/^au|^aw/, "aw"], [/^ow$/, "oh"], [/^ow/, "ow"], [/^oa/, "oh"], [/^ie/, "ee"], [/^ew/, "ew"], [/^ar/, "ah r"], [/^or/, "aw r"],
+  [/^er|^ir|^ur/, "uh r"], [/^ll/, "l"], [/^ss/, "s"], [/^tt/, "t"], [/^pp/, "p"], [/^bb/, "b"], [/^dd/, "d"], [/^ff/, "f"],
+  [/^gg/, "g"], [/^mm/, "m"], [/^nn/, "n"], [/^rr/, "r"], [/^zz/, "z"], [/^le$/, "uh l"],
+];
+function wordPhonemes(w) {
+  if (DICT[w]) return DICT[w];
+  const out = [];
+  let s = w.replace(/^kn/, "n").replace(/^wr/, "r").replace(/^wh/, "w").replace(/^ps/, "s");
+  if (/[^aeiou]e$/.test(s) && s.length > 3 && !/le$/.test(s)) s = s.slice(0, -1) + "\u0001";
+  const magic = c => /^[aeiou][bcdfgklmnprstvz]\u0001$/.test(c);
+  while (s.length) {
+    const m = RULES.find(([re]) => re.test(s));
+    if (m) { out.push(...m[1].split(" ")); s = s.slice(s.match(m[0])[0].length); continue; }
+    const c = s[0];
+    if (c === "\u0001") { s = s.slice(1); continue; }
+    if ("aeiou".includes(c)) { out.push(magic(s.slice(0, 3)) ? LONG[c] : SHORT[c]); }
+    else if (c === "y") { out.push(out.length === 0 ? "y" : (s.length === 1 ? (w.length > 3 ? "ee" : "eye") : "ih")); }
+    else if (c === "c") out.push(/^c[eiy]/.test(s) ? "s" : "k");
+    else if (c === "g") out.push(/^g[ei]/.test(s) && w.length > 3 ? "j" : "g");
+    else if (c === "x") out.push("k", "s");
+    else if (c === "q") out.push("k");
+    else if (c in IDX && c.length === 1 && "bdfhjklmnprstvwz".includes(c)) out.push(c);
+    s = s.slice(1);
+  }
+  return out;
+}
+function toDeseret(text) {
+  return text.replace(/[A-Za-z']+/g, tok => {
+    const w = tok.toLowerCase().replace(/'/g, "");
+    return wordPhonemes(w).map(c => IDX[c] === undefined ? "" : ch(IDX[c])).join("");
+  });
+}
+
+const $ = id => document.getElementById(id);
+const toast = (msg) => { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove("show"), 1500); };
+function copy(text) {
+  const done = () => toast("Copied " + (text.length > 14 ? "text" : text));
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text).then(done);
+  const ta = document.createElement("textarea");
+  ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); done(); } catch (e) { toast("Copy blocked by the browser"); }
+  ta.remove();
+}
+
+/* ---- hero ---- */
+const heroWord = toDeseret("deseret");
+$("bigword").innerHTML = [...heroWord].map((g, i) => `<span style="animation-delay:${i * 90}ms">${g}</span>`).join("");
+$("foot").textContent = toDeseret("holiness to the lord");
+$("days").textContent = Math.floor((Date.now() - Date.UTC(1854, 0, 19)) / 864e5).toLocaleString();
+
+/* ---- typing ---- */
+let mode = "eng";
+const render = () => {
+  const src = $("src").value;
+  const text = mode === "eng" ? toDeseret(src) : src;
+  const out = $("out");
+  out.textContent = text || " ";
+  out.style.fontSize = $("size").value + "px";
+  out.classList.toggle("grid", $("gridT").checked);
+  out.style.fontFeatureSettings = $("ligT").checked ? '"calt" 1' : '"calt" 0';
+  $("outNote").textContent = mode === "eng"
+    ? "Approximate. Unknown words follow simple spelling rules; try different spellings to hear what the rules do."
+    : "Raw mode: Deseret characters (U+10400\u201310427) and ASCII digits and punctuation pass straight through.";
+};
+const setMode = m => {
+  mode = m; $("mEng").classList.toggle("on", m === "eng"); $("mRaw").classList.toggle("on", m === "raw");
+  if (m === "raw") $("src").value = toDeseret($("src").value);
+  render();
+};
+$("mEng").onclick = () => { if (mode !== "eng") { $("src").value = "Holiness to the Lord"; } setMode("eng"); };
+$("mRaw").onclick = () => setMode("raw");
+["src", "size", "gridT", "ligT"].forEach(id => $(id).addEventListener("input", render));
+$("copyOut").onclick = () => copy($("out").textContent);
+["Holiness to the Lord", "Industry", "Hello, world!", "The quick brown fox jumps over the lazy dog.", "Salt Lake City, Utah 1854", "Welcome to the hive"]
+  .forEach(t => { const b = document.createElement("button"); b.textContent = t; b.onclick = () => { setMode("eng"); $("src").value = t; render(); }; $("chips").appendChild(b); });
+render();
+
+/* ---- honeycomb ---- */
+const comb = $("comb");
+function layout() {
+  const W = comb.clientWidth || 700;
+  const cw = Math.max(70, Math.min(104, Math.floor(W / Math.min(8, Math.floor(W / 78)) - 2)));
+  const cols = Math.max(3, Math.floor((W - cw / 2) / cw));
+  const chh = cw * 1.1547, step = chh * .75;
+  comb.querySelectorAll(".cellwrap").forEach((el, i) => {
+    const r = Math.floor(i / cols), c = i % cols;
+    el.style.width = cw + "px"; el.style.height = chh + "px";
+    el.style.left = (c * cw + (r % 2) * cw / 2) + "px"; el.style.top = (r * step) + "px";
+    el.firstChild.querySelector(".g").style.fontSize = cw * .5 + "px";
+  });
+  comb.style.height = (Math.ceil(40 / cols) * step + chh * .3) + "px";
+}
+const items = NAMES.map((n, i) => {
+  const wrap = document.createElement("div"); wrap.className = "cellwrap";
+  const b = document.createElement("button"); b.className = "cell"; b.style.width = b.style.height = "100%";
+  b.innerHTML = `<span class="g">${String.fromCodePoint(0x10400 + i)}</span><span class="n">${n}</span>`;
+  b.setAttribute("aria-label", n);
+  b.onclick = () => select(i);
+  wrap.appendChild(b); comb.appendChild(wrap); return b;
+});
+function select(i) {
+  items.forEach((b, k) => b.classList.toggle("sel", k === i));
+  $("detail").innerHTML = `<div class="huge">${String.fromCodePoint(0x10400 + i)}</div><h3>${NAMES[i]}</h3>
+    <dl><dt>Sound</dt><dd>${SOUND[i]}</dd><dt>As in</dt><dd>${EXAMPLE[i]}</dd>
+    <dt>Capital</dt><dd>${hex(0x10400 + i)}</dd><dt>Lowercase</dt><dd>${hex(0x10428 + i)}</dd></dl>
+    <button id="cpOne">Copy <span class="deseret">${String.fromCodePoint(0x10400 + i)}</span></button>`;
+  $("cpOne").onclick = () => copy(String.fromCodePoint(0x10400 + i));
+}
+select(18); layout(); addEventListener("resize", layout);
+if (document.fonts) document.fonts.ready.then(layout);
+
+/* ---- ligatures ---- */
+const L = (...i) => i.map(x => String.fromCodePoint(0x10428 + x)).join("");
+const LIGDEMO = [[L(6, 5), "Short I + Long OO \u2192 Ew (few)"], [L(15, 5), "Yee + Long OO \u2192 Ew (use)"], [L(9, 6), "Short AH + Short I \u2192 Oi (oil)"]];
+$("ligDemo").innerHTML = LIGDEMO.map(([s, cap]) => `<div><div class="pair"><div class="box lg">${s}</div><span class="arrow">&rarr;</span><div class="box lg2">${s}</div></div><small>${cap}</small></div>`).join("");
+const setLig = on => {
+  document.querySelectorAll(".lg2").forEach(e => e.style.fontFeatureSettings = on ? '"calt" 1' : '"calt" 0');
+  document.querySelectorAll(".lg").forEach(e => e.style.fontFeatureSettings = '"calt" 0');
+  $("ligPage").textContent = on ? "calt on" : "calt off"; $("ligPage").classList.toggle("on", on);
+};
+let ligOn = true; setLig(true);
+$("ligPage").onclick = () => setLig(ligOn = !ligOn);
+
+/* ---- numbers ---- */
+const tick = () => { $("clock").textContent = new Date().toTimeString().slice(0, 8); };
+tick(); setInterval(tick, 1000);
+
+/* ---- emblems ---- */
+const EMB = [["Beehive", 0xE000], ["Honeybee", 0xE001], ["Sego lily", 0xE002], ["Temple", 0xE003], ["All-seeing eye", 0xE004], ["Sunstone", 0xE005], ["Trumpet", 0xE006]];
+$("emb").innerHTML = EMB.map(([n, c]) => `<div class="card emblem" data-c="${c}"><div class="g">${String.fromCodePoint(c)}</div><b>${n}</b><small>${hex(c)}</small></div>`).join("");
+document.querySelectorAll(".emblem").forEach(e => e.onclick = () => copy(String.fromCodePoint(+e.dataset.c)));
+
+/* ---- theme ---- */
+const root = document.documentElement;
+let theme = "";
+try { theme = localStorage.getItem("bd-theme") || ""; } catch (e) {}
+if (!theme) theme = matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "day";
+const applyTheme = () => { root.dataset.theme = theme; $("theme").innerHTML = theme === "night" ? "&#9728;" : "&#9790;"; };
+applyTheme();
+$("theme").onclick = () => { theme = theme === "night" ? "day" : "night"; applyTheme(); try { localStorage.setItem("bd-theme", theme); } catch (e) {} };
+</script>
+</body>
+</html>

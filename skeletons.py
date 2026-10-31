@@ -7,9 +7,9 @@ the historical letterforms; the drawing is original.
 import math
 
 T = 620          # outer height of every letter
-STROKE = 96       # full (vertical) stroke weight
+STROKE = 88       # full (vertical) stroke weight
 CONTRAST = 0.5    # curved horizontal strokes are this fraction of the vertical weight
-BAR = 0.74        # straight horizontal bars (Eth, Pee, ...) stay heavier, as in the type
+BAR = 0.95        # straight horizontal bars (Eth, Pee, ...) stay heavier, as in the type
 ICON_STROKE = 66
 STEP = 4.0
 HSCALE = 1.1     # letters are drawn 10% wider than their skeleton, as in the originals
@@ -26,14 +26,21 @@ def ell(cx, cy, rx, ry):
 
 
 class Path(list):
-    """Centre-line polyline; `balls` = (start, end) flags for swollen terminals."""
+    """Centre-line polyline; `balls` = (start, end) flags for swollen terminals,
+    `fine` scales the stroke (hairlines like the inner curl of Long AH)."""
     balls = (False, False)
+    fine = 1.0
 
 
-def B(points, start=False, end=False):
+def B(points, start=False, end=False, fine=1.0):
     p = Path(points)
     p.balls = (start, end)
+    p.fine = fine
     return p
+
+
+def hair(points, fine=0.45):
+    return B(points, fine=fine)
 
 
 def scaled(paths, sx):
@@ -41,6 +48,7 @@ def scaled(paths, sx):
     for p in paths:
         q = Path((x * sx, y) for x, y in p)
         q.balls = getattr(p, "balls", (False, False))
+        q.fine = getattr(p, "fine", 1.0)
         out.append(q)
     return out
 
@@ -60,36 +68,33 @@ def stem(x, y0=0, y1=T):
 LETTERS = {}
 L = LETTERS
 
-L["long_i"] = [ell(0, 200, 150, 160), B([(150, 200), (150, 360)] + arc(0, 360, 150, 220, 0, 140), end=True)]
-L["long_e"] = [B(arc(0, 445, 140, 135, 25, 270) + arc(0, 175, 150, 135, 90, 335)[1:], True, True),
-               [(0, 310), (55, 310)]]
-L["long_a"] = [ell(0, 185, 150, 145), arc(0, 445, 125, 135, 235, 550)]
-L["long_ah"] = [ell(0, 310, 165, 270), arc(-5, 400, 55, 180, 90, -75)]
+L["long_i"] = [ell(-8, 200, 142, 160), B([(142, 200), (142, 360)] + arc(-8, 360, 150, 220, 0, 140), end=True)]
+L["long_e"] = [B(arc(0, 445, 140, 135, 0, 270) + arc(0, 175, 150, 135, 90, 360)[1:], True, True),
+               hair([(-30, 318), (90, 322), (152, 334)], 0.5)]
+L["long_a"] = [ell(-5, 175, 155, 175), ell(5, 470, 128, 130), hair([(-125, 345), (95, 345)], 0.7)]
+L["long_ah"] = [ell(0, 310, 165, 270),
+                hair([(-60, 575), (-60, 460)] + arc(20, 460, 80, 70, 180, 270)[1:] + [(168, 390)], 0.5)]
 L["long_o"] = [ell(0, 310, 185, 270)]
-L["long_oo"] = [ell(0, 310, 185, 270), stem(0)]
-
-L["short_i"] = [stem(0), [(-180, 430), (180, 210)]]
-L["short_e"] = [stem(120), arc(-10, 170, 130, 130, -30, -160)]
-L["short_a"] = [stem(170), [(-200, 250), (170, 40)]]
+L["long_oo"] = [ell(0, 310, 185, 270), B(stem(0), fine=0.62)]
+L["short_i"] = [stem(0), B([(-95, 565), (-10, 468), (115, 438)], start=True)]
+L["short_e"] = [stem(120), arc(-10, -5, 140, 150, 12, 170)]
+L["short_a"] = [stem(170), [(-150, 235), (170, 40)]]
 L["short_ah"] = [stem(190), [(190, 40), (75, 205), (-10, 40), (-195, 215)]]
-L["short_o"] = [stem(-170), B(arc(0, 560, 170, 110, 180, 350) + [(190, 605)], end=True)]
-L["short_oo"] = [ell(-20, 445, 125, 135), stem(105, 0, 445)]
-
-L["ay"] = [stem(30, 230), B(arc(30, 150, 120, 130, 90, -40), end=True), ell(-62, 160, 102, 112)]
-L["ow"] = [ell(0, 185, 150, 145), arc(0, 450, 125, 130, 215, 510)]
+L["short_o"] = [stem(-170), B(arc(0, 565, 175, 90, 180, 360) + [(205, 592)], end=True)]
+L["short_oo"] = [ell(-10, 440, 100, 140), B(stem(90, 0, 440), fine=0.8)]
+L["ay"] = [stem(30, 230), B(arc(25, 150, 100, 130, 90, -40), end=True), ell(-60, 115, 85, 105)]
+L["ow"] = [ell(0, 165, 150, 165), ell(0, 450, 145, 150),
+           hair([(30, 592), (52, 520), (30, 440), (-30, 385), (-115, 345)], 0.4)]
 L["wu"] = [[(-155, 620), (-170, 200)] + arc(-85, 200, 85, 160, 180, 360)[1:],
            [(0, 200), (0, 375)],
            arc(85, 200, 85, 160, 180, 360) + [(170, 200), (155, 620)]]
-L["yee"] = [[(-150, 620), (0, 0), (150, 620)], B(arc(0, 470, 215, 100, 205, 335), True, True)]
-L["h"] = [ell(0, 445, 165, 135), stem(0)]
-
+L["yee"] = [[(-135, 620), (0, 0), (135, 620)], B(arc(0, 480, 240, 105, 205, 335), True, True)]
+L["h"] = [ell(0, 445, 118, 135), stem(0)]
 # Consonants. Voiceless/voiced pairs share a construction.
 L["pee"] = [[(-190, 580), (150, 580)], stem(150)]
-bee_bowls = [[(165, 580), (-10, 580)] + arc(-10, 445, 155, 135, 90, 270)[1:] + [(-10, 310), (165, 310)],
-             arc(-10, 175, 155, 135, 90, 270) + [(-10, 40), (165, 40)]]
-L["bee"] = [stem(165)] + bee_bowls
-L["tee"] = [stem(130, 0, 430), arc(-20, 430, 150, 150, 190, 0)]
-L["dee"] = [ell(-20, 445, 125, 135), stem(130), arc(-20, 175, 150, 135, 90, 270) + [(-20, 40), (130, 40)]]
+L["bee"] = [B(stem(165, 25, 612), fine=0.75), ell(65, 470, 100, 140), ell(55, 180, 110, 150), hair([(-40, 330), (165, 330)], 0.5)]
+L["tee"] = [stem(130, 0, 430), B(arc(-20, 430, 150, 150, 190, 0), start=True)]
+L["dee"] = [B(stem(130, 25, 612), fine=0.75), ell(10, 470, 120, 140), ell(-10, 180, 140, 150)]
 L["chee"] = [B(arc(-15, 310, 175, 270, 40, 320), True, True)]
 L["jee"] = [B(arc(-10, 445, 120, 135, 45, 330) + [(100, 320), (-40, 0)], start=True)]
 kay_base = [[(-165, 430), (-165, 200)] + arc(-82, 200, 83, 160, 180, 360)[1:],
@@ -97,22 +102,33 @@ kay_base = [[(-165, 430), (-165, 200)] + arc(-82, 200, 83, 160, 180, 360)[1:],
             arc(82, 200, 83, 160, 180, 360) + [(165, 200), (165, 430)],
             arc(0, 430, 165, 150, 0, 180)]
 L["kay"] = kay_base
-L["gay"] = kay_base + [arc(25, 440, 70, 135, 90, -90)]
-L["ef"] = [stem(-150), [(-150, 580), (-30, 580)] + arc(-30, 445, 160, 135, 90, -90)[1:] + [(-30, 310), (-150, 310)]]
-L["vee"] = [arc(-20, 445, 150, 135, 150, -90), arc(-20, 175, 160, 135, 90, -150)]
+L["gay"] = kay_base + [hair([(-30, 585), (40, 545), (90, 470), (120, 390), (150, 335)], 0.5)]
+L["ef"] = [stem(-105), ell(0, 470, 105, 150)]
+L["vee"] = [arc(-5, 445, 125, 140, 90, -90) + arc(-5, 170, 150, 135, 90, -90)[1:], arc(130, 310, 280, 300, 108, 252)]
 L["eth"] = [[(-140, 620), (-140, 40), (170, 40)]]
-L["thee"] = [[(-190, 620), (-45, 330)], [(190, 620), (45, 330)], ell(0, 165, 85, 125)]
-L["es"] = [ell(0, 170, 165, 130), ell(0, 465, 100, 105), B([(-215, 365), (0, 335), (215, 300)], True, True)]
+L["thee"] = [[(-190, 620), (-30, 320)], [(190, 620), (30, 320)], ell(0, 160, 95, 150)]
+L["es"] = [ell(0, 170, 140, 130), ell(0, 465, 100, 105),
+           B([(-215, 392), (-130, 352), (0, 338), (130, 322), (215, 336)], True, True, fine=0.7)]
 L["zee"] = [ell(0, 190, 150, 150), B([(-150, 190), (-150, 360)] + arc(0, 360, 150, 220, 180, 60), end=True)]
-L["esh"] = [ell(10, 310, 150, 270), stem(-140, 300)]
-L["zhee"] = [B(arc(0, 445, 145, 135, 30, 270) + arc(0, 175, 150, 135, 90, -150)[1:], True, True)]
-L["er"] = [stem(0), B([(-155, 500), (-155, 400)] + arc(0, 400, 155, 150, 180, 360)[1:] + [(155, 400), (155, 500)], True, True)]
-L["el"] = [B([(-165, 620), (-165, 200)] + arc(0, 200, 165, 160, 180, 360)[1:] + [(165, 200), (165, 300)], end=True)]
-L["em"] = [B(arc(-40, 310, 190, 270, 110, -110), True, True)]
-L["en"] = [[(-150, 620), (-150, 215), (150, 420)], stem(150, 0, 451)]
-L["eng"] = [stem(-150), stem(150), [(-150, 40), (150, 580)]]
+L["esh"] = [ell(15, 310, 145, 270), stem(-150)]
+L["zhee"] = [B(arc(0, 445, 145, 135, 15, 270) + arc(0, 175, 150, 135, 90, -160)[1:], True, True)]
+L["er"] = [stem(35), B([(-155, 500), (-155, 400)] + arc(0, 400, 155, 150, 180, 360)[1:] + [(155, 400), (155, 500)], True, True)]
+L["el"] = [[(-165, 620), (-165, 200)] + arc(0, 200, 165, 160, 180, 360)[1:] + [(165, 230), (172, 372)]]
+L["em"] = [B([(-125, 468), (-122, 520), (-100, 560)] + arc(-40, 310, 190, 270, 105, -110), True, True)]
+L["en"] = [[(-150, 620), (-150, 215), (150, 400)], stem(150, 0, 430)]
+L["eng"] = [stem(-150), stem(150), B([(-150, 40), (150, 580)], fine=0.5)]
 L["oi"] = [stem(110), [(-10, 570), (230, 430)], [(110, 40), (10, 200), (-70, 40), (-200, 200)]]
 L["ew"] = [ell(0, 310, 170, 270), stem(0), [(-95, 440), (95, 250)]]
+
+# Width / height of each letter as printed in the 1869 chart (outer bounds, stroke included).
+ASPECT = {
+    "long_i": 0.68, "long_e": 0.64, "long_a": 0.70, "long_ah": 0.83, "long_o": 0.78, "long_oo": 0.81,
+    "short_i": 0.47, "short_e": 0.59, "short_a": 0.49, "short_ah": 0.72, "short_o": 0.57, "short_oo": 0.47,
+    "ay": 0.57, "ow": 0.68, "wu": 0.73, "yee": 0.88, "h": 0.57,
+    "pee": 0.69, "bee": 0.76, "tee": 0.52, "dee": 0.76, "chee": 0.62, "jee": 0.60, "kay": 0.84, "gay": 0.86,
+    "ef": 0.55, "vee": 0.64, "eth": 0.68, "thee": 0.74, "es": 0.89, "zee": 0.55, "esh": 0.76, "zhee": 0.61,
+    "er": 0.66, "el": 0.57, "em": 0.58, "en": 0.48, "eng": 0.68,
+}
 
 DESERET_ORDER = [
     "long_i", "long_e", "long_a", "long_ah", "long_o", "long_oo",
