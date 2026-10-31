@@ -21,6 +21,17 @@ ROOT = Path(__file__).parent
 UPM = 1000
 ADVANCE = 620
 CU2QU_ERR = 1.0
+LIGATURES = """
+lookup LIG_BLANK { sub [short_i yee short_ah] by blank.liga; } LIG_BLANK;
+lookup LIG_EW { sub long_oo by ew.liga; } LIG_EW;
+lookup LIG_OI { sub short_i by oi.liga; } LIG_OI;
+feature calt {
+    sub short_i' lookup LIG_BLANK long_oo' lookup LIG_EW;
+    sub yee' lookup LIG_BLANK long_oo' lookup LIG_EW;
+    sub short_ah' lookup LIG_BLANK short_i' lookup LIG_OI;
+} calt;
+"""
+BALL = 0.72      # ball-terminal radius as a fraction of the half stroke
 
 
 def cw(poly):
@@ -28,7 +39,7 @@ def cw(poly):
     return poly if area < 0 else poly[::-1]
 
 
-def thicken(path, w, contrast=1.0):
+def thicken(path, w, contrast=1.0, bar=None):
     """Centre-line polyline -> overlapping clockwise polygons, flat ends, mitred joins.
 
     contrast < 1 thins horizontal strokes relative to vertical ones (vertical stress,
@@ -52,11 +63,19 @@ def thicken(path, w, contrast=1.0):
         (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
         d = math.hypot(x1 - x0, y1 - y0)
         dx, dy = (x1 - x0) / d, (y1 - y0) / d
-        r = w / 2 * (contrast + (1 - contrast) * abs(dy))
+        c = bar if (bar is not None and d > 70) else contrast
+        r = w / 2 * (c + (1 - c) * abs(dy))
         dirs.append((dx, dy))
         radii.append(r)
         nx, ny = -dy * r, dx * r
         polys.append(cw([(x0 + nx, y0 + ny), (x1 + nx, y1 + ny), (x1 - nx, y1 - ny), (x0 - nx, y0 - ny)]))
+    for end, flag in enumerate(getattr(path, "balls", (False, False))):
+        if flag and not closed:
+            (px, py), (qx, qy) = (pts[0], pts[1]) if end == 0 else (pts[-1], pts[-2])
+            d = math.hypot(qx - px, qy - py)
+            br = w / 2 * BALL
+            cx, cy = px + (qx - px) / d * br * 0.5, py + (qy - py) / d * br * 0.5
+            polys.append(cw([(cx + br * math.cos(t), cy + br * math.sin(t)) for t in (math.tau * i / 24 for i in range(24))]))
     for i in (range(n) if closed else range(1, n - 1)):
         j = (i - 1) % last
         d1, d2 = dirs[j], dirs[i % last]
@@ -102,8 +121,8 @@ def area(poly):
     return sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(poly, poly[1:] + poly[:1])) / 2
 
 
-def outline(paths, stroke, contrast=1.0):
-    polys = [poly for p in paths for poly in thicken(p, stroke, contrast)]
+def outline(paths, stroke, contrast=1.0, bar=None):
+    polys = [poly for p in paths for poly in thicken(p, stroke, contrast, bar)]
     contours = union_contours(polys)
     biggest = max(contours, key=lambda c: abs(area(c)))
     if area(biggest) > 0:
@@ -146,22 +165,28 @@ def notdef():
 def main():
     glyphs = {".notdef": notdef(), "space": TTGlyphPen(None).glyph()}
     order = [".notdef", "space"]
+    shapes = {}
     cmap = {0x20: "space", 0xA0: "space"}
 
-    def add(name, paths, stroke, contrast=1.0):
-        contours = outline(paths, stroke, contrast)
+    def add(name, paths, stroke, contrast=1.0, bar=None, fit_height=False):
+        contours = outline(paths, stroke, contrast, bar)
+        if fit_height:
+            _, y0, _, y1 = bbox(contours)
+            k = sk.T / (y1 - y0)
+            contours = [[(x, (y - y0) * k) for x, y in c] for c in contours]
         x0, _, x1, _ = bbox(contours)
+        shapes[name] = (contours, (x0 + x1) / 2)
         glyphs[name] = to_glyph(contours, ADVANCE / 2 - (x0 + x1) / 2)
         order.append(name)
         if x1 - x0 > ADVANCE - 40:
             print(f"warning: {name} is {x1 - x0:.0f} wide", file=sys.stderr)
 
     for i, nm in enumerate(sk.DESERET_ORDER):
-        add(nm, [[(x * sk.HSCALE, y) for x, y in p] for p in sk.LETTERS[nm]], sk.STROKE, sk.CONTRAST)
+        add(nm, sk.scaled(sk.LETTERS[nm], sk.HSCALE), sk.STROKE, sk.CONTRAST, sk.BAR, True)
         cmap[0x10400 + i] = nm       # capital
         cmap[0x10428 + i] = nm       # lowercase shares the historical form
     for i, nm in enumerate(sk.DIGITS):
-        add(nm, sk.D[nm], sk.STROKE, sk.CONTRAST)
+        add(nm, sk.D[nm], sk.STROKE, sk.CONTRAST, sk.BAR, True)
         cmap[0x30 + i] = nm
     codes = {"period": ".", "comma": ",", "colon": ":", "semicolon": ";", "hyphen": "-", "quotesingle": "'",
              "quotedbl": '"', "exclam": "!", "question": "?", "parenleft": "(", "parenright": ")", "slash": "/"}
@@ -171,6 +196,13 @@ def main():
     for nm, (paths, stroke) in sk.SYMBOLS.items():
         add(nm, paths, stroke)
         cmap[sk.PUA[nm]] = nm
+
+    glyphs["blank.liga"] = TTGlyphPen(None).glyph()
+    order.append("blank.liga")
+    for nm in ("ew", "oi"):
+        contours, cx = shapes[nm]
+        glyphs[nm + ".liga"] = to_glyph(contours, -cx)
+        order.append(nm + ".liga")
 
     fb = FontBuilder(UPM, isTTF=True)
     fb.setupGlyphOrder(order)
@@ -190,16 +222,17 @@ def main():
         "uniqueFontIdentifier": "BeehiveDeseretMono-Regular",
         "fullName": "Beehive Deseret Mono Regular",
         "psName": "BeehiveDeseretMono-Regular",
-        "version": "Version 0.3",
+        "version": "Version 0.4",
         "licenseDescription": "Original design; licence to be decided by the author.",
     })
     fb.setupOS2(sTypoAscender=800, sTypoDescender=-240, sTypoLineGap=0,
                 usWinAscent=860, usWinDescent=260, sxHeight=620, sCapHeight=620,
                 achVendID="HOTS", xAvgCharWidth=ADVANCE)
     fb.setupPost(isFixedPitch=1)
+    fb.addOpenTypeFeatures(LIGATURES)
     panose = fb.font["OS/2"].panose
     panose.bFamilyType, panose.bProportion = 2, 9
-    fb.font["head"].fontRevision = 0.3
+    fb.font["head"].fontRevision = 0.4
 
     out = ROOT / "fonts"
     out.mkdir(exist_ok=True)
