@@ -17,11 +17,23 @@ Design principles of the originals, which this font follows:
 - No case. The Unicode lowercase block (U+10428-1044F) maps to the same shapes as the capitals.
 - 40 letters, one per sound, each letter's name is its sound.
 
-The letterforms were redrawn by hand as stroke skeletons (`skeletons.py`) while looking at the
-shapes in Noto Sans Deseret (OFL) for reference only; no outlines are copied. `compare.py` makes a
-side-by-side proof against any reference Deseret font. They have **not** yet been checked against
-scans of the 1850s printings (e.g. the Deseret First/Second Books), so treat details such as exact
-curve shapes in Ay, Ow, Yee, Thee and Es as approximations.
+The letterforms are redrawn by hand as stroke skeletons (`skeletons.py`). Two references were used
+for looking only; no outlines are copied from either:
+
+- the 1869 Deseret Alphabet edition of the Book of Mormon (printed by Russell Bros. for the Deseret
+  University; scan on [deseretalphabet.org](https://www.deseretalphabet.org/files/reading-material/)),
+  including its printed alphabet chart;
+- Noto Sans Deseret (OFL), via `compare.py`, for side-by-side proofs.
+
+What the period type taught us, and what the font now does:
+
+- Strong vertical stress: heavy verticals and thin horizontals, like the Didone-style metal type of
+  the day (`CONTRAST` in `skeletons.py`; set it to 1 for a monoline version).
+- Bold overall weight; round letters (Long O, Wu, rings) nearly as wide as tall.
+- Every letter spans the same height (0-620); there is no case.
+
+Not yet reproduced: the period type's small curled terminals (Kay/Gay, Yee, Ay) and its slightly
+uneven letterpress edges. Shapes such as Ay, Ow, Yee, Thee and Es are close approximations.
 
 ## Symbols (Private Use Area)
 
@@ -53,4 +65,4 @@ Pipeline: skeleton polylines -> stroked polygons (flat ends, mitred joins) -> ov
 
 ## Status
 
-v0.2. No hinting or kerning (monospace, so kerning is moot). Licence undecided.
+v0.3. No hinting or kerning (monospace, so kerning is moot). Licence undecided.

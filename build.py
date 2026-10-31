@@ -28,44 +28,51 @@ def cw(poly):
     return poly if area < 0 else poly[::-1]
 
 
-def thicken(path, w):
-    """Centre-line polyline -> overlapping clockwise polygons with flat ends and mitred joins."""
-    r = w / 2
+def thicken(path, w, contrast=1.0):
+    """Centre-line polyline -> overlapping clockwise polygons, flat ends, mitred joins.
+
+    contrast < 1 thins horizontal strokes relative to vertical ones (vertical stress,
+    as in the 1860s metal type): half-width = w/2 * (contrast + (1 - contrast) * |dy|).
+    """
     pts = [path[0]]
     for p in path[1:]:
         if math.dist(p, pts[-1]) > 1e-6:
             pts.append(p)
     if len(pts) == 1:
         x, y = pts[0]
+        r = w / 2
         return [cw([(x + r * math.cos(t), y + r * math.sin(t)) for t in (math.tau * i / 24 for i in range(24))])]
     closed = len(pts) > 3 and math.dist(pts[0], pts[-1]) < 1e-4
     if closed:
         pts.pop()
     n = len(pts)
-    polys = []
     last = n if closed else n - 1
-    dirs = []
+    dirs, radii, polys = [], [], []
     for i in range(last):
         (x0, y0), (x1, y1) = pts[i], pts[(i + 1) % n]
         d = math.hypot(x1 - x0, y1 - y0)
         dx, dy = (x1 - x0) / d, (y1 - y0) / d
+        r = w / 2 * (contrast + (1 - contrast) * abs(dy))
         dirs.append((dx, dy))
+        radii.append(r)
         nx, ny = -dy * r, dx * r
         polys.append(cw([(x0 + nx, y0 + ny), (x1 + nx, y1 + ny), (x1 - nx, y1 - ny), (x0 - nx, y0 - ny)]))
     for i in (range(n) if closed else range(1, n - 1)):
-        d1, d2 = dirs[i - 1], dirs[i % len(dirs)]
+        j = (i - 1) % last
+        d1, d2 = dirs[j], dirs[i % last]
+        r1, r2 = radii[j], radii[i % last]
         cross = d1[0] * d2[1] - d1[1] * d2[0]
-        dot = d1[0] * d2[0] + d1[1] * d2[1]
-        if abs(cross) < 1e-9 and dot > 0:
+        if abs(cross) < 1e-9:
             continue
         s = -1 if cross > 0 else 1
         px, py = pts[i]
-        a = (px - s * d1[1] * r, py + s * d1[0] * r)
-        b = (px - s * d2[1] * r, py + s * d2[0] * r)
+        a = (px - s * d1[1] * r1, py + s * d1[0] * r1)
+        b = (px - s * d2[1] * r2, py + s * d2[0] * r2)
         poly = [(px, py), a, b]
-        if 1 + dot > 0.2:
-            k = 1 / (1 + dot)
-            poly = [(px, py), a, (px + ((a[0] - px) + (b[0] - px)) * k, py + ((a[1] - py) + (b[1] - py)) * k), b]
+        t = ((b[0] - a[0]) * d2[1] - (b[1] - a[1]) * d2[0]) / cross
+        tip = (a[0] + d1[0] * t, a[1] + d1[1] * t)
+        if abs(t) < 3 * max(r1, r2) and d1[0] * d2[0] + d1[1] * d2[1] > -0.9:
+            poly = [(px, py), a, tip, b]
         polys.append(cw(poly))
     return polys
 
@@ -95,8 +102,8 @@ def area(poly):
     return sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(poly, poly[1:] + poly[:1])) / 2
 
 
-def outline(paths, stroke):
-    polys = [poly for p in paths for poly in thicken(p, stroke)]
+def outline(paths, stroke, contrast=1.0):
+    polys = [poly for p in paths for poly in thicken(p, stroke, contrast)]
     contours = union_contours(polys)
     biggest = max(contours, key=lambda c: abs(area(c)))
     if area(biggest) > 0:
@@ -141,8 +148,8 @@ def main():
     order = [".notdef", "space"]
     cmap = {0x20: "space", 0xA0: "space"}
 
-    def add(name, paths, stroke):
-        contours = outline(paths, stroke)
+    def add(name, paths, stroke, contrast=1.0):
+        contours = outline(paths, stroke, contrast)
         x0, _, x1, _ = bbox(contours)
         glyphs[name] = to_glyph(contours, ADVANCE / 2 - (x0 + x1) / 2)
         order.append(name)
@@ -150,11 +157,11 @@ def main():
             print(f"warning: {name} is {x1 - x0:.0f} wide", file=sys.stderr)
 
     for i, nm in enumerate(sk.DESERET_ORDER):
-        add(nm, [[(x * sk.HSCALE, y) for x, y in p] for p in sk.LETTERS[nm]], sk.STROKE)
+        add(nm, [[(x * sk.HSCALE, y) for x, y in p] for p in sk.LETTERS[nm]], sk.STROKE, sk.CONTRAST)
         cmap[0x10400 + i] = nm       # capital
         cmap[0x10428 + i] = nm       # lowercase shares the historical form
     for i, nm in enumerate(sk.DIGITS):
-        add(nm, sk.D[nm], sk.STROKE)
+        add(nm, sk.D[nm], sk.STROKE, sk.CONTRAST)
         cmap[0x30 + i] = nm
     codes = {"period": ".", "comma": ",", "colon": ":", "semicolon": ";", "hyphen": "-", "quotesingle": "'",
              "quotedbl": '"', "exclam": "!", "question": "?", "parenleft": "(", "parenright": ")", "slash": "/"}
@@ -183,7 +190,7 @@ def main():
         "uniqueFontIdentifier": "BeehiveDeseretMono-Regular",
         "fullName": "Beehive Deseret Mono Regular",
         "psName": "BeehiveDeseretMono-Regular",
-        "version": "Version 0.2",
+        "version": "Version 0.3",
         "licenseDescription": "Original design; licence to be decided by the author.",
     })
     fb.setupOS2(sTypoAscender=800, sTypoDescender=-240, sTypoLineGap=0,
@@ -192,7 +199,7 @@ def main():
     fb.setupPost(isFixedPitch=1)
     panose = fb.font["OS/2"].panose
     panose.bFamilyType, panose.bProportion = 2, 9
-    fb.font["head"].fontRevision = 0.2
+    fb.font["head"].fontRevision = 0.3
 
     out = ROOT / "fonts"
     out.mkdir(exist_ok=True)

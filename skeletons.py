@@ -7,8 +7,9 @@ the historical letterforms; the drawing is original.
 import math
 
 T = 620          # outer height of every letter
-STROKE = 80
-ICON_STROKE = 56
+STROKE = 96       # full (vertical) stroke weight
+CONTRAST = 0.5    # horizontal strokes are this fraction of the vertical weight
+ICON_STROKE = 66
 STEP = 4.0
 HSCALE = 1.1     # letters are drawn 10% wider than their skeleton, as in the originals
 
